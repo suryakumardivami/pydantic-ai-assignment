@@ -11,9 +11,11 @@ load_dotenv(override=True)
 logfire.configure()
 logfire.instrument_pydantic_ai()
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCwo_fdDi7rJpPeqy9EMSMnIKvFrnG1eik"
-
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 SERP_API_KEY = os.getenv("SERP_API_KEY")
+
+if GOOGLE_API_KEY:
+    os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 system_prompt = """
 You are a Research Agent specialized in gathering, analyzing, and presenting factual information.

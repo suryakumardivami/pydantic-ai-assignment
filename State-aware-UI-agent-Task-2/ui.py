@@ -106,17 +106,29 @@ class CardManager:
         color_class = self.color_map.get(color.lower(), 'bg-gray-500')
         if small:
             return Div(
-                H4(name.title(), cls="text-sm font-bold text-black"),
-                P(f"₹{price:.0f}", cls="text-xs font-semibold text-black mt-0.5"),
-                P(f"Qty: {quantity}", cls="text-xs font-medium text-black mt-0.5"),
-                cls=f"{color_class} p-2 rounded-lg shadow w-24 h-24 flex flex-col items-center justify-center",
+                Div(
+                    H4(name.title(), cls="text-xs font-bold text-gray-900 mb-1"),
+                    Div(
+                        P(f"₹{price:.0f}", cls="text-lg font-extrabold text-gray-900"),
+                        P(f"Stock: {quantity}", cls="text-xs font-medium text-gray-700 mt-0.5"),
+                        cls="text-center"
+                    ),
+                    cls="flex flex-col items-center justify-center h-full"
+                ),
+                cls=f"{color_class} rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 w-28 h-28 p-3 border-2 border-white",
                 id=f"card-{card_id}"
             )
         return Div(
-            H4(name.title(), cls="text-xl font-bold text-black"),
-            P(f"₹{price:.0f}", cls="text-lg font-semibold text-black mt-1"),
-            P(f"Qty: {quantity}", cls="text-sm font-medium text-black mt-1"),
-            cls=f"{color_class} p-4 rounded-lg shadow-lg w-36 h-36 flex flex-col items-center justify-center",
+            Div(
+                H3(name.title(), cls="text-2xl font-bold text-gray-900 mb-2"),
+                Div(
+                    P(f"₹{price:.0f}", cls="text-3xl font-extrabold text-gray-900"),
+                    P(f"Qty: {quantity}", cls="text-base font-semibold text-gray-700 mt-2"),
+                    cls="text-center"
+                ),
+                cls="flex flex-col items-center justify-center h-full"
+            ),
+            cls=f"{color_class} rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-44 h-44 p-5 border-4 border-white",
             id=f"card-{card_id}"
         )
     
@@ -162,39 +174,98 @@ def index():
     initial_cards = card_manager.render_all_cards(session_id, small=True)
     
     return Div(
+        # Header
         Div(
-            H3("Available Items", cls="text-lg font-semibold mb-2 text-gray-700"),
-            initial_cards,
-            cls="px-4 py-3 bg-white border-b-2 border-gray-200"
+            H1("🛒 Smart Shopping Assistant", 
+               cls="text-2xl font-bold text-white mb-1"),
+            P("Your AI-powered shopping companion", 
+              cls="text-sm text-blue-100"),
+            cls="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-3 shadow-xl"
         ),
+        
+        # Available Items Section - Full Width
         Div(
-            H1("Hello, Customer!", 
-               cls="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4"),
-            P("This is a modern e-commerce application helper to make your shopping easier", 
-              cls="text-xl text-gray-600 mb-8"),
-            cls="text-center",
-            id="welcome"
+            Div(
+                Div(
+                    H2("🏪 Available Items", cls="text-2xl font-bold text-gray-800 mb-1"),
+                    P("Select items to add to your cart", cls="text-sm text-gray-600"),
+                    cls="mb-4 text-center"
+                ),
+                Div(
+                    initial_cards,
+                    cls="flex justify-center"
+                ),
+                cls="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+            ),
+            cls="px-8 py-6"
         ),
-        Div(id="messages", cls="flex-1 overflow-y-auto px-6 py-4 space-y-4 hidden"),
+        
+        # Split Layout - Chat and Cart Side by Side
         Div(
-            H3("Your Cart", cls="text-lg font-semibold mb-2 text-gray-700"),
-            Div(id="cart-container", cls="flex flex-wrap gap-3"),
-            cls="px-4 py-3 bg-white border-t-2 border-gray-200"
+            # Left Side - Chat Section (Half)
+            Div(
+                # Welcome Message
+                Div(
+                    Div(
+                        H2("👋 Welcome!", cls="text-2xl font-bold text-gray-800 mb-2"),
+                        P("Ask me to add items to your cart, remove items, or update quantities!", 
+                          cls="text-base text-gray-600 mb-1"),
+                        P("Examples: 'Add 2 bananas', 'Remove 1 apple'",
+                          cls="text-sm text-gray-500 italic"),
+                        cls="text-center"
+                    ),
+                    id="welcome",
+                    cls="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 mb-4 shadow-md border border-blue-100"
+                ),
+                
+                # Chat Messages
+                Div(id="response", cls="space-y-3"),
+                
+                cls="flex-1 overflow-y-auto px-4"
+            ),
+            
+            # Right Side - Shopping Cart Section (Half)
+            Div(
+                Div(
+                    Div(
+                        H2("🛍️ Your Cart", cls="text-2xl font-bold text-gray-800 mb-1"),
+                        P("Items ready for checkout", cls="text-sm text-gray-600"),
+                        cls="mb-4"
+                    ),
+                    Div(id="cart-container", cls="flex flex-wrap gap-4 min-h-[100px]"),
+                    cls="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+                ),
+                cls="flex-1 overflow-y-auto px-4"
+            ),
+            
+            cls="flex gap-4 px-4 mb-32 flex-1 overflow-hidden"
         ),
+        
+        # Fixed Input Form
         Form(
-            Input(id="msg", name="msg", placeholder="Type your message...", autofocus=True, 
-                  cls="flex-1 border-2 border-gray-300 focus:border-blue-500 focus:outline-none px-4 rounded-lg text-lg h-14"),
-            Button("Send", 
-                   cls="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 h-14 flex items-center justify-center"),
+            Div(
+                Input(
+                    id="msg", 
+                    name="msg", 
+                    placeholder="💬 Type your message here... (e.g., 'Add 3 bananas to cart')", 
+                    autofocus=True, 
+                    cls="flex-1 border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none px-6 py-4 rounded-xl text-lg shadow-sm"
+                ),
+                Button(
+                    "Send ✨", 
+                    cls="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-10 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                ),
+                cls="flex gap-4 items-center max-w-5xl mx-auto"
+            ),
             id="form",
-            cls="fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-2 border-gray-200 p-6 flex gap-3 items-center",
+            cls="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-2xl border-t-2 border-gray-200 px-8 py-6",
             hx_post="/send",
             hx_target="#response",
             hx_swap="beforeend",
             hx_on__after_request="if(document.getElementById('welcome')) document.getElementById('welcome').classList.add('hidden'); this.reset();"
         ),
-        Div(id="response", cls="flex-1 overflow-y-auto px-6 py-4 space-y-4"),
-        cls="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 pb-24"
+        
+        cls="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50"
     )
 
 @routes('/send')
@@ -250,11 +321,17 @@ async def post(msg: str, session_id: str = "default"):
     
     # Prepare response output
     bot_response = error_message if error_message else response.output
-    response_color = "bg-red-100 text-red-800" if error_message else "bg-gray-200 text-gray-800"
+    response_color = "bg-red-50 border-l-4 border-red-500 text-red-800" if error_message else "bg-white border-l-4 border-blue-500 text-gray-800"
     
     chat_bubbles = Div(
-        Div(Div(msg, cls="bg-blue-600 text-white px-4 py-3 rounded-lg rounded-tr-none max-w-md shadow-md"), cls="flex justify-end mb-2"),
-        Div(Div(bot_response, cls=f"{response_color} px-4 py-3 rounded-lg rounded-tl-none max-w-md shadow-md"), cls="flex justify-start mb-4")
+        Div(
+            Div(msg, cls="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-3 rounded-2xl rounded-tr-sm shadow-lg max-w-xl"),
+            cls="flex justify-end mb-3"
+        ),
+        Div(
+            Div(bot_response, cls=f"{response_color} px-6 py-3 rounded-2xl rounded-tl-sm shadow-md max-w-xl"),
+            cls="flex justify-start"
+        )
     )
     
     if inventory_html and cart_html:
